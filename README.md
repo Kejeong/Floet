@@ -1,6 +1,6 @@
 # Jerry Blossom
 
-작은 햄스터가 꽃을 나르는 온라인 꽃·식물 쇼핑몰 프로젝트입니다.
+온라인 꽃·식물 쇼핑몰 프로젝트입니다.
 
 ## Repository layout
 
