@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: jerry-blossom-backend
+  config:
+    import: optional:file:../.env[.properties]
+  datasource:
+    url: jdbc:postgresql://127.0.0.1:${POSTGRES_PORT:5434}/${POSTGRES_DB:jerry_blossom}
+    username: ${POSTGRES_USER:jerry}
+    password: ${POSTGRES_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8080
