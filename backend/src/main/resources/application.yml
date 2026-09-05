@@ -2,7 +2,8 @@ spring:
   application:
     name: jerry-blossom-backend
   config:
-    import: optional:file:../.env[.properties]
+    # `backend`와 프로젝트 루트 어느 위치에서 실행해도 루트의 .env를 읽는다.
+    import: optional:file:../.env[.properties],optional:file:.env[.properties]
   datasource:
     url: jdbc:postgresql://127.0.0.1:${POSTGRES_PORT:5434}/${POSTGRES_DB:jerry_blossom}
     username: ${POSTGRES_USER:jerry}
@@ -17,3 +18,7 @@ spring:
 
 server:
   port: 8080
+
+springdoc:
+  swagger-ui:
+    default-models-expand-depth: -1
