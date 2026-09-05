@@ -1,5 +1,8 @@
 package com.jerryblossom.user.repository;
 
-public class UserRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+import com.jerryblossom.user.domain.User;
 
+public interface UserRepository extends JpaRepository<User, Long> { // 저장, ID조회, 전체 조회 등 기본 기능을 자동으로 제공
+  boolean existsByEmail(String email); // 이메일 중복 체크
 }
