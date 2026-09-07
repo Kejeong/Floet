@@ -2,7 +2,8 @@ spring:
   application:
     name: jerry-blossom-backend
   config:
-    import: optional:file:../.env[.properties]
+    # `backend`와 프로젝트 루트 어느 위치에서 실행해도 루트의 .env를 읽는다.
+    import: optional:file:../.env[.properties],optional:file:.env[.properties]
   datasource:
     url: jdbc:postgresql://127.0.0.1:${POSTGRES_PORT:5434}/${POSTGRES_DB:jerry_blossom}
     username: ${POSTGRES_USER:jerry}
@@ -11,9 +12,31 @@ spring:
     hibernate:
       ddl-auto: update
     open-in-view: false
+    show-sql: true
     properties:
       hibernate:
         format_sql: true
+  data:
+    redis:
+      host: 127.0.0.1
+      port: ${REDIS_PORT:6379}
 
 server:
   port: 8080
+
+springdoc:
+  swagger-ui:
+    default-models-expand-depth: -1
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-expiration: ${JWT_ACCESS_EXPIRATION}
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION}
+
+logging:
+  level:
+    org.hibernate.orm.jdbc.bind: trace
+
+app:
+  auth:
+    cookie-secure: ${COOKIE_SECURE:false}

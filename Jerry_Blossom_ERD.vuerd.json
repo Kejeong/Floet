@@ -4,8 +4,8 @@
   "settings": {
     "width": 2000,
     "height": 2000,
-    "scrollTop": -195,
-    "scrollLeft": -82.1353,
+    "scrollTop": -139.125,
+    "scrollLeft": -126,
     "zoomLevel": 0.79,
     "show": 431,
     "database": 4,
@@ -58,27 +58,31 @@
           "_tTrqb0sjDV76nLShYD8Z",
           "w-pqV7yNzLzQNpmySdWtw",
           "2xbnE_aH2LbvsD2kzz7IL",
-          "DtGbcPg21LKwo9m1JgrIY"
+          "frfgRmhfV4oPPLQ219_1f",
+          "DtGbcPg21LKwo9m1JgrIY",
+          "LI38BFVyDDnLiZruExb0O"
         ],
         "seqColumnIds": [
           "g29u9Qxa4_w0huFI0rAEK",
           "_tTrqb0sjDV76nLShYD8Z",
           "w-pqV7yNzLzQNpmySdWtw",
           "2xbnE_aH2LbvsD2kzz7IL",
+          "frfgRmhfV4oPPLQ219_1f",
           "DtGbcPg21LKwo9m1JgrIY",
           "CCdSg7ZA2hl0niWOKwuUs",
-          "UArmPmzPWkDtwu8gwGcCi"
+          "UArmPmzPWkDtwu8gwGcCi",
+          "LI38BFVyDDnLiZruExb0O"
         ],
         "ui": {
           "x": 306.1139,
-          "y": 95.7342,
+          "y": 70.4177,
           "zIndex": 2,
           "widthName": 60,
           "widthComment": 60,
           "color": ""
         },
         "meta": {
-          "updateAt": 1788499689472,
+          "updateAt": 1788592055775,
           "createAt": 1788497038321
         }
       },
@@ -1275,6 +1279,46 @@
           "updateAt": 1788500862784,
           "createAt": 1788500847805
         }
+      },
+      "frfgRmhfV4oPPLQ219_1f": {
+        "id": "frfgRmhfV4oPPLQ219_1f",
+        "tableId": "-_1Md1n27sAPC2ktsCJdu",
+        "name": "phonenumber",
+        "comment": "전화번호",
+        "dataType": "VARCHAR",
+        "default": "",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 81,
+          "widthComment": 60,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1788592024593,
+          "createAt": 1788592007376
+        }
+      },
+      "LI38BFVyDDnLiZruExb0O": {
+        "id": "LI38BFVyDDnLiZruExb0O",
+        "tableId": "-_1Md1n27sAPC2ktsCJdu",
+        "name": "updatedAt",
+        "comment": "수정일자",
+        "dataType": "DATETIME",
+        "default": "",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 61,
+          "widthComment": 60,
+          "widthDataType": 61,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1788592068886,
+          "createAt": 1788592051190
+        }
       }
     },
     "relationshipEntities": {
@@ -1541,7 +1585,7 @@
             "g29u9Qxa4_w0huFI0rAEK"
           ],
           "x": 306.1139,
-          "y": 183.7342,
+          "y": 182.41769999999997,
           "direction": 1
         },
         "end": {
@@ -1624,8 +1668,8 @@
           "columnIds": [
             "g29u9Qxa4_w0huFI0rAEK"
           ],
-          "x": 672.1139000000001,
-          "y": 183.7342,
+          "x": 693.1139000000001,
+          "y": 182.41769999999997,
           "direction": 2
         },
         "end": {
