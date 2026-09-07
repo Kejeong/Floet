@@ -25,7 +25,7 @@ import java.time.Duration;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
-@Tag(name = "인증", description = "회원인증")
+@Tag(name = "인증")
 public class AuthController {
 
     private final AuthService authService;
@@ -96,6 +96,7 @@ public class AuthController {
      */
     @PostMapping("/logout")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "004.로그아웃")
     public void logout(
             @CookieValue(value = "refreshToken", required = false) String refreshToken,
             HttpServletResponse response

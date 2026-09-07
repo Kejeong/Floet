@@ -1,7 +1,9 @@
 package com.jerryblossom.global.config;
 
+import com.jerryblossom.user.domain.Role;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -30,8 +32,20 @@ public class SecurityConfig {
                 "/api/auth/reissue",
                 "/api/auth/logout",
                 "/swagger-ui/**",
-                "/v3/api-docs/**")
-            .permitAll()
+                "/v3/api-docs/**").permitAll()
+                // 누구나 상품조회 가능
+                .requestMatchers(HttpMethod.GET, "/api/items", "/api/items/**")
+                .permitAll()
+                // 관리자만 상품 등록 가능
+                .requestMatchers(HttpMethod.POST, "/api/items")
+                .hasRole(Role.ADMIN)
+                // 관리자만 상품 수정 가능
+                .requestMatchers(HttpMethod.PUT, "/api/items/**")
+                .hasRole(Role.ADMIN)
+                // 관리자만 상품 삭제 가능
+                .requestMatchers(HttpMethod.DELETE, "/api/items/**")
+                .hasRole(Role.ADMIN)
+                // 나머지 API는 로그인 필요
             .anyRequest().authenticated())
         .addFilterBefore(
             jwtAuthenticationFilter,
