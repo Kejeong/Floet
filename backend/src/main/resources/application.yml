@@ -36,3 +36,7 @@ jwt:
 logging:
   level:
     org.hibernate.orm.jdbc.bind: trace
+
+app:
+  auth:
+    cookie-secure: ${COOKIE_SECURE:false}

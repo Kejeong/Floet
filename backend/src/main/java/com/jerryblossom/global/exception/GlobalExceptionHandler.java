@@ -1,6 +1,8 @@
 package com.jerryblossom.global.exception;
 
 import com.jerryblossom.auth.exception.EmailAlreadyExistsException;
+import com.jerryblossom.auth.exception.InvalidCredentialsException;
+import com.jerryblossom.auth.exception.InvalidTokenException;
 import com.jerryblossom.global.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +21,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException exception) {
         Map<String, String> fieldErrors = new LinkedHashMap<>();
 
-        exception.getBindingResult().getFieldErrors().forEach(error ->
-                fieldErrors.put(error.getField(), error.getDefaultMessage())
-        );
+        exception.getBindingResult().getFieldErrors()
+                .forEach(error -> fieldErrors.put(error.getField(), error.getDefaultMessage()));
 
         ErrorCode errorCode = ErrorCode.VALIDATION_ERROR;
 
@@ -47,6 +48,24 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(errorCode.getStatus())
+                .body(ErrorResponse.of(errorCode));
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCredentials(
+            InvalidCredentialsException exception) {
+        ErrorCode errorCode = ErrorCode.INVALID_CREDENTIALS;
+
+        return ResponseEntity.status(errorCode.getStatus())
+                .body(ErrorResponse.of(errorCode));
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidToken(
+            InvalidTokenException exception) {
+        ErrorCode errorCode = ErrorCode.INVALID_TOKEN;
+
+        return ResponseEntity.status(errorCode.getStatus())
                 .body(ErrorResponse.of(errorCode));
     }
 }

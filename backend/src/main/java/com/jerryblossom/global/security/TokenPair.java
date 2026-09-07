@@ -8,5 +8,6 @@ import lombok.RequiredArgsConstructor;
 public class TokenPair {
     private final String accessToken;
     private final String refreshToken;
-    private final long accessTokenExpiresIn;;
+    private final long accessTokenExpiresIn;  // accessToken 만료시간
+    private final long refreshTokenExpiresIn;  // refreshToken 만료시간
 }

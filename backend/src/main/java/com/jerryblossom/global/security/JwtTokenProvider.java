@@ -1,6 +1,8 @@
 package com.jerryblossom.global.security;
 
+import com.jerryblossom.auth.exception.InvalidTokenException;
 import com.jerryblossom.user.domain.User;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
@@ -11,6 +13,7 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Date;
+import java.util.UUID;
 
 @Component
 public class JwtTokenProvider {
@@ -23,9 +26,7 @@ public class JwtTokenProvider {
             @Value("${jwt.access-expiration}") long accessExpiration,
             @Value("${jwt.refresh-expiration}") long refreshExpiration
     ) {
-        this.secretKey = Keys.hmacShaKeyFor(
-                secret.getBytes(StandardCharsets.UTF_8)
-        );
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.accessExpiration = accessExpiration;
         this.refreshExpiration = refreshExpiration;
     }
@@ -47,11 +48,39 @@ public class JwtTokenProvider {
 
         String refreshToken = Jwts.builder()
                 .subject(String.valueOf(user.getId()))
+                .id(UUID.randomUUID().toString())
+                .claim("typ", "refresh")
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plusSeconds(refreshExpiration)))
                 .signWith(secretKey)
                 .compact();
 
-        return new TokenPair(accessToken, refreshToken, accessExpiration);
+        return new TokenPair(accessToken, refreshToken, accessExpiration, refreshExpiration);
+    }
+
+    public Claims parseAccessToken(String token) {
+        Claims claims = parse(token);
+
+        if (!"access".equals(claims.get("typ", String.class))) {
+            throw new InvalidTokenException();
+        }
+        return claims;
+    }
+
+    public Claims parseRefreshToken(String token) {
+        Claims claims = parse(token);
+
+        if (!"refresh".equals(claims.get("typ", String.class))) {
+            throw new InvalidTokenException();
+        }
+        return claims;
+    }
+
+    private Claims parse(String token) {
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 }

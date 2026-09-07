@@ -3,21 +3,21 @@ package com.jerryblossom.auth.service;
 import com.jerryblossom.auth.dto.LoginRequest;
 import com.jerryblossom.auth.exception.EmailAlreadyExistsException;
 import com.jerryblossom.auth.exception.InvalidCredentialsException;
+import com.jerryblossom.auth.exception.InvalidTokenException;
 import com.jerryblossom.global.security.JwtTokenProvider;
 import com.jerryblossom.global.security.TokenPair;
 import com.jerryblossom.user.domain.User;
-import jakarta.validation.constraints.Email;
-import org.springframework.http.HttpStatus;
+import io.jsonwebtoken.JwtException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-
 import lombok.RequiredArgsConstructor;
 
 import com.jerryblossom.auth.dto.SignUpRequest;
 import com.jerryblossom.auth.dto.SignUpResponse;
 import com.jerryblossom.user.repository.UserRepository;
+
+import io.jsonwebtoken.Claims;
 
 @Service
 @RequiredArgsConstructor
@@ -30,9 +30,8 @@ public class AuthService {
 
   /**
    * 회원가입
-   * 
    * @param request
-   * @return
+   * @return SignUpResponse
    */
   public SignUpResponse signUp(SignUpRequest request) {
     // 이미 등록된 메일이 있는지 검증
@@ -41,12 +40,12 @@ public class AuthService {
     }
 
     User user = User.builder()
-            .email(request.getEmail())
-            .password(passwordEncoder.encode(request.getPassword()))
-            .name(request.getName())
-            .phoneNumber(request.getPhoneNumber())
-            .role("USER")
-            .build();
+        .email(request.getEmail())
+        .password(passwordEncoder.encode(request.getPassword()))
+        .name(request.getName())
+        .phoneNumber(request.getPhoneNumber())
+        .role("USER")
+        .build();
 
     User savedUser = userRepository.save(user);
 
@@ -55,12 +54,15 @@ public class AuthService {
 
   /**
    * 로그인
+   *
+   * @param request
+   * @return TokenPair
    */
-  public TokenPair login(LoginRequest request){
+  public TokenPair login(LoginRequest request) {
     User user = userRepository.findByEmail(request.getEmail())
-            .orElseThrow(InvalidCredentialsException::new);
+        .orElseThrow(InvalidCredentialsException::new);
 
-    if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+    if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
       throw new InvalidCredentialsException();
     }
 
@@ -70,4 +72,42 @@ public class AuthService {
 
     return tokenPair;
   }
+
+  /**
+   * Refresh Token 재발급
+   * 
+   * @param refreshToken Refresh Token
+   * @return TokenPair
+   */
+  public TokenPair reissue(String refreshToken) {
+    Claims claims = jwtTokenProvider.parseRefreshToken(refreshToken);
+    Long userId = Long.valueOf(claims.getSubject());
+
+    if (!refreshTokenService.consume(userId, refreshToken)) {
+      throw new InvalidTokenException();
+    }
+
+    User user = userRepository.findById(userId)
+        .orElseThrow(InvalidTokenException::new);
+
+    TokenPair newTokens = jwtTokenProvider.createToken(user);
+    refreshTokenService.save(userId, newTokens.getRefreshToken());
+
+    return newTokens;
+  }
+
+  /**
+   * 로그아웃
+   */
+  public void logout(String refreshToken) {
+    try{
+      Claims claims = jwtTokenProvider.parseRefreshToken(refreshToken);
+      Long userId = Long.valueOf(claims.getSubject());
+
+      refreshTokenService.deleteIfMatches(userId, refreshToken);
+    } catch (JwtException | InvalidTokenException | IllegalArgumentException ignored) {
+      // 이미 만료,삭제,변조된 토큰이어도 쿠키는 제거한다.
+    }
+  }
+
 }
