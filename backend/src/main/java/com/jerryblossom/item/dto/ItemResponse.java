@@ -10,6 +10,7 @@ public class ItemResponse {
     private final String name;
     private final String category;
     private final String flowerMeaning;
+    private final String occasionTag;
     private final int price;
     private final int stock;
 
@@ -19,6 +20,7 @@ public class ItemResponse {
         this.name = item.getName();
         this.category = item.getCategory();
         this.flowerMeaning = item.getFlowerMeaning();
+        this.occasionTag = item.getOccasionTag();
         this.price = item.getPrice();
         this.stock = item.getStock();
     }

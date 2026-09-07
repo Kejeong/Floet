@@ -25,6 +25,9 @@ public class Item {
     @Column(nullable = false)
     private String flowerMeaning;
 
+    @Column(nullable = false, length = 50)
+    private String occasionTag;
+
     @Column(nullable = false)
     private int price;
 
@@ -32,18 +35,20 @@ public class Item {
     private int stock;
 
     @Builder
-    public Item(String name, String category, String flowerMeaning, int price, int stock) {
+    public Item(String name, String category, String flowerMeaning, String occasionTag, int price, int stock) {
         this.name = name;
         this.category = category;
         this.flowerMeaning = flowerMeaning;
+        this.occasionTag = occasionTag;
         this.price = price;
         this.stock = stock;
     }
 
-    public void update(String name, String category, String flowerMeaning, int price, int stock) {
+    public void update(String name, String category, String flowerMeaning, String occasionTag, int price, int stock) {
         this.name = name;
         this.category = category;
         this.flowerMeaning = flowerMeaning;
+        this.occasionTag = occasionTag;
         this.price = price;
         this.stock = stock;
     }

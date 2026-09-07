@@ -18,6 +18,9 @@ public class ItemCreateRequest {
     @NotBlank(message = "꽃말은 필수입니다.")
     private String flowerMeaning;
 
+    @NotBlank(message = "상황 태그는 필수입니다.")
+    private String occasionTag;
+
     @Positive(message = "가격은 0보다 커야 합니다.")
     private int price;
 

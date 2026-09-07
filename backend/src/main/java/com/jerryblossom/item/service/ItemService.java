@@ -6,6 +6,8 @@ import com.jerryblossom.item.dto.ItemResponse;
 import com.jerryblossom.item.dto.ItemUpdateRequest;
 import com.jerryblossom.item.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +31,7 @@ public class ItemService {
                 .name(request.getName())
                 .category(request.getCategory())
                 .flowerMeaning(request.getFlowerMeaning())
+                .occasionTag(request.getOccasionTag())
                 .price(request.getPrice())
                 .stock(request.getStock())
                 .build();
@@ -39,10 +42,16 @@ public class ItemService {
     /**
      * 상품 전체 조회
      */
-    public List<ItemResponse> findAll(){
-        return itemRepository.findAll().stream()
-                .map(ItemResponse::new)
-                .toList();
+    public Page<ItemResponse> findAll(String category, Pageable pageable){
+        Page<Item> items;
+
+        if(category == null || category.isBlank()) {
+            items = itemRepository.findAll(pageable);
+        } else {
+            items = itemRepository.findAllByCategory(category, pageable);
+        }
+
+        return items.map(ItemResponse::new);
     }
 
     /**
@@ -66,6 +75,7 @@ public class ItemService {
                 request.getName(),
                 request.getCategory(),
                 request.getFlowerMeaning(),
+                request.getOccasionTag(),
                 request.getPrice(),
                 request.getStock()
         );

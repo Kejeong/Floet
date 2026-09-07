@@ -8,6 +8,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,9 +32,10 @@ public class ItemController {
     }
 
     @GetMapping
-    @Operation(summary = "상품전체조회")
-    public List<ItemResponse> findAll() {
-        return itemService.findAll();
+    @Operation(summary = "상품목록조회")
+    public Page<ItemResponse> findAll(@RequestParam(required = false) String category,
+                                      @PageableDefault(size = 8, sort= "id", direction = Sort.Direction.DESC) Pageable pageable){
+        return itemService.findAll(category, pageable);
     }
 
     @GetMapping("/{id}")
