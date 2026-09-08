@@ -3,6 +3,7 @@ package com.jerryblossom.item.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -26,4 +27,7 @@ public class ItemCreateRequest {
 
     @PositiveOrZero(message = "재고는 0 이상이어야 합니다.")
     private int stock;
+
+    @Size(max = 500, message = "이미지 주소는 500자 이하여야 합니다.")
+    private String imageUrl;
 }

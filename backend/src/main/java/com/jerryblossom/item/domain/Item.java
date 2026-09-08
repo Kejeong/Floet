@@ -21,7 +21,6 @@ public class Item {
     @Column(nullable = false, length = 50)
     private String category;
 
-
     @Column(nullable = false)
     private String flowerMeaning;
 
@@ -34,16 +33,23 @@ public class Item {
     @Column(nullable = false)
     private int stock;
 
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;
+
     @Builder
-    public Item(String name, String category, String flowerMeaning, String occasionTag, int price, int stock) {
+    public Item(String name, String category, String flowerMeaning, String occasionTag, int price, int stock, String imageUrl) {
         this.name = name;
         this.category = category;
         this.flowerMeaning = flowerMeaning;
         this.occasionTag = occasionTag;
         this.price = price;
         this.stock = stock;
+        this.imageUrl = imageUrl;
     }
 
+    /**
+     * 상품 수정
+     */
     public void update(String name, String category, String flowerMeaning, String occasionTag, int price, int stock) {
         this.name = name;
         this.category = category;
@@ -51,5 +57,11 @@ public class Item {
         this.occasionTag = occasionTag;
         this.price = price;
         this.stock = stock;
+    }
+    /**
+     * 상품 이미지 변경
+     */
+    public void changeImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

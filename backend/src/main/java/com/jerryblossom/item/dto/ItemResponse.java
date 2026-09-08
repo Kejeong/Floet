@@ -3,8 +3,13 @@ package com.jerryblossom.item.dto;
 import com.jerryblossom.item.domain.Item;
 import lombok.Getter;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 @Getter
-public class ItemResponse {
+public class ItemResponse implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final Long id;
     private final String name;
@@ -13,6 +18,7 @@ public class ItemResponse {
     private final String occasionTag;
     private final int price;
     private final int stock;
+    private final String imageUrl;
 
 
     public ItemResponse(Item item) {
@@ -23,5 +29,6 @@ public class ItemResponse {
         this.occasionTag = item.getOccasionTag();
         this.price = item.getPrice();
         this.stock = item.getStock();
+        this.imageUrl = item.getImageUrl();
     }
 }

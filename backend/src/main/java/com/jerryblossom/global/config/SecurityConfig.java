@@ -53,6 +53,13 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/api/items/**")
                 .hasRole(Role.ADMIN)
                 // 나머지 API는 로그인 필요
+                // 상품 이미지는 누구나 볼 수 있어야 합니다.
+                .requestMatchers(HttpMethod.GET, "/uploads/**")
+                .permitAll()
+
+                // 이미지를 서버에 올리는 것은 관리자만 가능합니다.
+                .requestMatchers(HttpMethod.POST, "/api/uploads/items")
+                .hasRole(Role.ADMIN)
             .anyRequest().authenticated())
         .addFilterBefore(
             jwtAuthenticationFilter,

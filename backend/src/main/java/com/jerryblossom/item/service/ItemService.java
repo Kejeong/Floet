@@ -6,12 +6,12 @@ import com.jerryblossom.item.dto.ItemResponse;
 import com.jerryblossom.item.dto.ItemUpdateRequest;
 import com.jerryblossom.item.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 
 @Service
@@ -26,6 +26,7 @@ public class ItemService {
      * @return
      */
     @Transactional
+    @CacheEvict(cacheNames = {"itemList", "item"}, allEntries = true)
     public ItemResponse create(ItemCreateRequest request){
         Item item = Item.builder()
                 .name(request.getName())
@@ -34,15 +35,21 @@ public class ItemService {
                 .occasionTag(request.getOccasionTag())
                 .price(request.getPrice())
                 .stock(request.getStock())
+                .imageUrl(request.getImageUrl())
                 .build();
 
         return new ItemResponse(itemRepository.save(item));
     }
 
     /**
-     * 상품 전체 조회
+     * 상품 목록조회
      */
-    public Page<ItemResponse> findAll(String category, Pageable pageable){
+        @Cacheable(
+                cacheNames = "itemList",
+                key = "#category + ':' + #pageable.pageNumber + ':' + #pageable.pageSize"
+        )
+        public Page<ItemResponse> findAll(String category, Pageable pageable){
+            // Redis에 데이터가 없을 때만 DB조회
         Page<Item> items;
 
         if(category == null || category.isBlank()) {
@@ -57,6 +64,7 @@ public class ItemService {
     /**
      * 상품 상세조회
      */
+    @Cacheable(cacheNames = "item", key = "#id")
     public ItemResponse findById(Long id){
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
@@ -67,6 +75,7 @@ public class ItemService {
      * 상품 수정
      */
     @Transactional
+    @CacheEvict(cacheNames = {"itemList", "item"}, allEntries = true)
     public ItemResponse update(Long id, ItemUpdateRequest request) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
@@ -79,6 +88,7 @@ public class ItemService {
                 request.getPrice(),
                 request.getStock()
         );
+        item.changeImageUrl(request.getImageUrl());
 
         // JPA 변경 감지: save()를 다시 호출하지 않아도 트랜잭션 종료 시 UPDATE 됩니다.
         return new ItemResponse(item);
@@ -88,6 +98,7 @@ public class ItemService {
      * 상품 삭제
      */
     @Transactional
+    @CacheEvict(cacheNames = {"itemList", "item"}, allEntries = true)
     public void delete(Long id){
         itemRepository.deleteById(id);
     }
