@@ -5,6 +5,11 @@ interface LoginResponse {
   expiresIn: number;
 }
 
+/**
+ * 로그인
+ * @param email
+ * @param password
+ */
 export async function login(email: string, password: string): Promise<LoginResponse> {
   const response = await fetch(`${API_URL}/api/auth/login`, {
     method: 'POST',

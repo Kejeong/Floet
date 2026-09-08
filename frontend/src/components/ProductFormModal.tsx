@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
-import { ItemRequest } from '../api/items';
+import { ImagePlus, X } from 'lucide-react';
+import { getItemImageUrl, ItemRequest } from '../api/items';
 import { FlowerItem } from '../types';
 
 interface ProductFormModalProps {
@@ -9,7 +9,7 @@ interface ProductFormModalProps {
   isSaving: boolean;
   error: string | null;
   onClose: () => void;
-  onSubmit: (item: ItemRequest) => void;
+  onSubmit: (item: ItemRequest, image: File | null) => void;
 }
 
 const emptyItem: ItemRequest = {
@@ -19,6 +19,7 @@ const emptyItem: ItemRequest = {
   occasionTag: '',
   price: 0,
   stock: 0,
+  imageUrl: undefined,
 };
 
 export const ProductFormModal: React.FC<ProductFormModalProps> = ({
@@ -30,6 +31,9 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   onSubmit,
 }) => {
   const [form, setForm] = useState<ItemRequest>(emptyItem);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -40,13 +44,49 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       occasionTag: item.occasionTag,
       price: item.price,
       stock: item.stock,
+      imageUrl: item.imageUrl,
     } : emptyItem);
+    setSelectedImage(null);
+    setImagePreviewUrl(getItemImageUrl(item?.imageUrl ?? item?.image) ?? null);
+    setImageError(null);
   }, [isOpen, item]);
+
+  useEffect(() => {
+    return () => {
+      if (imagePreviewUrl?.startsWith('blob:')) {
+        URL.revokeObjectURL(imagePreviewUrl);
+      }
+    };
+  }, [imagePreviewUrl]);
 
   if (!isOpen) return null;
 
   const updateField = <K extends keyof ItemRequest>(key: K, value: ItemRequest[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
+  };
+
+  const handleImageChange = (file: File | null) => {
+    setImageError(null);
+
+    if (!file) {
+      setSelectedImage(null);
+      setImagePreviewUrl(getItemImageUrl(item?.imageUrl ?? item?.image) ?? null);
+      return;
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      setImageError('JPG, PNG, WEBP 형식의 이미지만 선택할 수 있습니다.');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setImageError('이미지 파일은 5MB 이하여야 합니다.');
+      return;
+    }
+
+    setSelectedImage(file);
+    setImagePreviewUrl(URL.createObjectURL(file));
   };
 
   return (
@@ -58,7 +98,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
         className="w-full max-w-lg rounded-2xl border border-[#E6DDD2] bg-[#FBF9F6] shadow-2xl"
         onSubmit={(event) => {
           event.preventDefault();
-          onSubmit(form);
+          onSubmit(form, selectedImage);
         }}
       >
         <div className="flex items-center justify-between border-b border-[#E6DDD2] px-5 py-4">
@@ -88,6 +128,33 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
           <label className="sm:col-span-2 text-[11px] font-medium text-[#2C2723]">꽃말
             <input required value={form.flowerMeaning} onChange={(e) => updateField('flowerMeaning', e.target.value)} className="mt-1.5 w-full rounded-lg border border-[#E2D8CC] bg-white px-3 py-2 text-xs outline-none focus:border-[#2C2723]" />
           </label>
+          <div className="sm:col-span-2">
+            <span className="text-[11px] font-medium text-[#2C2723]">상품 이미지</span>
+            <div className="mt-1.5 flex flex-col gap-3 rounded-xl border border-dashed border-[#D8CCBD] bg-white p-3 sm:flex-row sm:items-center">
+              <div className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-[#F5EFEB]">
+                {imagePreviewUrl ? (
+                  <img src={imagePreviewUrl} alt="선택한 상품 이미지 미리보기" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full flex-col items-center justify-center gap-1 text-[#2C2723]/45">
+                    <ImagePlus className="h-5 w-5" />
+                    <span className="text-[10px]">미리보기</span>
+                  </div>
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <input
+                  id="product-image-input"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={(event) => handleImageChange(event.target.files?.[0] ?? null)}
+                  className="block w-full text-[11px] text-[#2C2723]/70 file:mr-3 file:rounded-md file:border-0 file:bg-[#EFE8DE] file:px-3 file:py-2 file:text-[11px] file:font-medium file:text-[#2C2723] hover:file:bg-[#E2D8CC]"
+                />
+                <p className="mt-2 text-[10px] font-light text-[#2C2723]/50">JPG, PNG, WEBP · 최대 5MB</p>
+                {selectedImage && <p className="mt-1 truncate text-[10px] text-[#2C2723]/70">선택됨: {selectedImage.name}</p>}
+                {imageError && <p className="mt-1 text-[10px] text-red-700">{imageError}</p>}
+              </div>
+            </div>
+          </div>
           <label className="text-[11px] font-medium text-[#2C2723]">가격 (원)
             <input required min="1" type="number" value={form.price || ''} onChange={(e) => updateField('price', Number(e.target.value))} className="mt-1.5 w-full rounded-lg border border-[#E2D8CC] bg-white px-3 py-2 text-xs outline-none focus:border-[#2C2723]" />
           </label>

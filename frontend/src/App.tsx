@@ -153,6 +153,9 @@ export default function App() {
     setIsLoginOpen(true);
   };
 
+  /**
+   * 로그인 성공시
+   */
   const handleLoginSuccess = async (email: string, password: string) => {
     const loginResponse = await login(email, password);
     const myProfile = await getMyProfile(loginResponse.accessToken);
@@ -163,7 +166,9 @@ export default function App() {
     triggerToast('로그인되었습니다.');
   };
 
-  // Complete checkout
+  /**
+   * 주문 성공시
+   */
   const handleOrderSuccess = (orderData: OrderCheckoutData) => {
     setIsCheckoutOpen(false);
     setCompletedOrder(orderData);
@@ -179,7 +184,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F6F1EA] text-[#2C2723] selection:bg-[#E2D9CD] selection:text-[#2C2723]">
+    <div className="min-h-screen flex flex-col bg-white text-[#2C2723] selection:bg-[#E2D9CD] selection:text-[#2C2723]">
       {/* Navigation */}
       <Navbar
         activeCategory={activeCategory}
@@ -210,7 +215,7 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-12 flex-1 w-full">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-12 flex-1 w-full bg-white">
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2.5 mb-8 pb-3.5 border-b border-[#E6DDD2]">
           <div>
@@ -298,8 +303,10 @@ export default function App() {
           </nav>
         )}
 
+        <div className="relative left-1/2 mt-14 h-px w-screen -translate-x-1/2 bg-[#E6DDD2]" aria-hidden="true" />
+
         {/* Why Jerry Blossom Section (Story / Assurance) */}
-        <section className="mt-16 bg-[#FAF8F5] rounded-xl border border-[#E6DDD2] p-6 sm:p-8">
+        <section className="mt-10 bg-[#FAF8F5] rounded-xl border border-[#E6DDD2] p-6 sm:p-8">
           <div className="max-w-2xl">
             <span className="text-[10px] uppercase tracking-[0.2em] text-[#2C2723]/50 block font-light">
               Jerry Blossom Atelier Promise

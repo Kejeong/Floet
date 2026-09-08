@@ -30,7 +30,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenMyPage,
 }) => {
   return (
-    <header className="sticky top-0 z-40 bg-[#F7F3EC]/95 backdrop-blur-md border-b border-[#E6DDD2] transition-all">
+    <header className="sticky top-0 z-40 bg-white border-b border-[#E6DDD2] transition-all">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         {/* Top Right Utility Row for LOGOUT / LOGIN */}
         <div className="flex justify-end items-center pt-2.5 pb-1 text-[11px] font-light text-[#2C2723]/60 border-b border-[#E6DDD2]/60">
@@ -93,7 +93,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="꽃 이름, 꽃말, 선물 목적 검색..."
-              className="w-full bg-[#EFE8DE] text-xs text-[#2C2723] placeholder-[#2C2723]/40 pl-9 pr-4 py-2 rounded-full border border-[#E0D6C8] focus:border-[#2C2723] focus:bg-white focus:outline-none transition-all"
+              className="w-full bg-white text-xs text-[#2C2723] placeholder-[#2C2723]/40 pl-9 pr-4 py-2 rounded-full border border-[#E0D6C8] focus:border-[#2C2723] focus:outline-none transition-all"
             />
             <Search className="w-3.5 h-3.5 text-[#2C2723]/40 absolute left-3 pointer-events-none" />
           </div>

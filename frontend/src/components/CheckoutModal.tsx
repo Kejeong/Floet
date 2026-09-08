@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, ShieldCheck, User, FileText } from 'lucide-react';
 import { CustomOrderItem, OrderCheckoutData } from '../types';
+import { getItemImageUrl } from '../api/items';
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -126,7 +127,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 <div key={item.id} className="text-[11px] bg-white p-3 rounded-lg border border-[#E6DDD2] flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <img
-                      src={item.flower.image}
+                      src={getItemImageUrl(item.flower.imageUrl ?? item.flower.image)}
                       alt={item.flower.name}
                       className="w-10 h-10 object-cover rounded-md border border-[#E6DDD2] shrink-0"
                     />

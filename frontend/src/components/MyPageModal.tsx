@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { X, User, Package, CheckCircle2, Plus, Pencil, Trash2 } from 'lucide-react';
 import { OrderCheckoutData } from '../types';
 import { UserProfile } from '../api/users';
-import { createItem, deleteItem, getItems, ItemRequest, updateItem } from '../api/items';
+import { createItem, deleteItem, getItemImageUrl, getItems, ItemRequest, updateItem, uploadItemImage } from '../api/items';
 import { FlowerItem } from '../types';
 import { ProductFormModal } from './ProductFormModal';
 
@@ -58,15 +58,21 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
     setActiveTab(isAdmin ? 'products' : 'orders');
   }, [isAdmin]);
 
-  const handleSaveProduct = async (item: ItemRequest) => {
+  const handleSaveProduct = async (item: ItemRequest, image: File | null) => {
     if (!accessToken) return;
     setIsSaving(true);
     setFormError(null);
     try {
+      const itemWithImage = { ...item };
+      if (image) {
+        const uploadedImage = await uploadItemImage(image, accessToken);
+        itemWithImage.imageUrl = uploadedImage.imageUrl;
+      }
+
       if (editingItem) {
-        await updateItem(editingItem.id, item, accessToken);
+        await updateItem(editingItem.id, itemWithImage, accessToken);
       } else {
-        await createItem(item, accessToken);
+        await createItem(itemWithImage, accessToken);
       }
       setEditingItem(undefined);
       await loadProducts();
@@ -208,7 +214,7 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
                       {order.items.map((item) => (
                         <div key={item.id} className="flex gap-3 items-center">
                           <img
-                            src={item.flower.image}
+                            src={getItemImageUrl(item.flower.imageUrl ?? item.flower.image)}
                             alt={item.flower.name}
                             className="w-12 h-12 object-cover rounded-lg border border-[#E6DDD2]"
                           />
@@ -307,7 +313,7 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
         isSaving={isSaving}
         error={formError}
         onClose={() => !isSaving && setEditingItem(undefined)}
-        onSubmit={(item) => void handleSaveProduct(item)}
+        onSubmit={(item, image) => void handleSaveProduct(item, image)}
       />
     </div>
   );

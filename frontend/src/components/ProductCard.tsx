@@ -1,6 +1,7 @@
 import React from 'react';
 import { ChevronRight, Flower2 } from 'lucide-react';
 import { FlowerItem } from '../types';
+import { getItemImageUrl } from '../api/items';
 
 interface ProductCardProps {
   flower: FlowerItem;
@@ -8,15 +9,17 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ flower, onSelect }) => {
+  const imageUrl = getItemImageUrl(flower.imageUrl ?? flower.image);
+
   return (
     <div
       id={`product-card-${flower.id}`}
       className="group bg-white rounded-xl overflow-hidden border border-[#E6DDD2] hover:border-[#2C2723]/40 hover:shadow-md transition-all duration-300 flex flex-col"
     >
       <div className="relative aspect-[4/5] sm:aspect-square overflow-hidden bg-[#EADBCE]/30 flex items-center justify-center">
-        {flower.image ? (
+        {imageUrl ? (
           <img
-            src={flower.image}
+            src={imageUrl}
             alt={flower.name}
             loading="lazy"
             className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
@@ -62,7 +65,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ flower, onSelect }) =>
         </div>
 
         <p className="text-[11px] text-[#2C2723]/60 font-light line-clamp-1 mb-3">
-          추천 상황: {flower.occasionTag}
+          {flower.occasionTag}
         </p>
 
         {/* Price & Action button in footer */}

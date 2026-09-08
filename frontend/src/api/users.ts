@@ -8,6 +8,10 @@ export interface UserProfile {
   role: string;
 }
 
+/**
+ * 내 정보 조회
+ * @param accessToken
+ */
 export async function getMyProfile(accessToken: string): Promise<UserProfile> {
   const response = await fetch(`${API_URL}/api/users/me`, {
     credentials: 'include',

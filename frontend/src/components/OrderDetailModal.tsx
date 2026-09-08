@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, ShoppingBag, ArrowRight, Flower2 } from 'lucide-react';
 import { FlowerItem, CustomOrderItem } from '../types';
+import { getItemImageUrl } from '../api/items';
 
 interface OrderDetailModalProps {
   flower: FlowerItem | null;
@@ -18,6 +19,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
   if (!flower) return null;
 
   const [quantity, setQuantity] = useState<number>(1);
+  const imageUrl = getItemImageUrl(flower.imageUrl ?? flower.image);
 
   const totalPrice = flower.price * quantity;
 
@@ -69,9 +71,9 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
         <div className="p-5 sm:p-6 overflow-y-auto space-y-6 text-sm bg-[#FBF9F6]">
           {/* Flower Visual & Intro */}
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 pb-5 border-b border-[#E6DDD2]">
-            {flower.image ? (
+            {imageUrl ? (
               <img
-                src={flower.image}
+                src={imageUrl}
                 alt={flower.name}
                 className="w-full sm:w-44 h-52 sm:h-44 object-cover rounded-xl border border-[#E6DDD2]"
               />

@@ -10,6 +10,7 @@ export interface FlowerItem {
   flowerMeaning: string;
   occasionTag: string;
   stock: number;
+  imageUrl?: string;
   image?: string;
 }
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
 import { CustomOrderItem } from '../types';
+import { getItemImageUrl } from '../api/items';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -77,7 +78,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 >
                   {/* Item Thumbnail */}
                   <img
-                    src={item.flower.image}
+                    src={getItemImageUrl(item.flower.imageUrl ?? item.flower.image)}
                     alt={item.flower.name}
                     className="w-20 h-20 object-cover rounded-lg border border-[#E6DDD2] shrink-0"
                   />

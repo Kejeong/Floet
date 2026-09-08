@@ -17,7 +17,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ onTagClick, selectedTag 
   ];
 
   return (
-    <section className="relative overflow-hidden pt-8 pb-10 sm:pt-12 sm:pb-12 bg-[#FAF7F2] border-b border-[#E6DDD2]">
+    <section className="relative overflow-hidden pt-8 pb-10 sm:pt-12 sm:pb-12 bg-[#F7F3EC] border-b border-[#E6DDD2]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
           {/* Left Text & Filter Area */}
