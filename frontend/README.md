@@ -1,11 +1,20 @@
-# Frontend
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
+</div>
 
-웹 클라이언트가 위치할 영역입니다. 아직 프레임워크나 소스 코드는 생성하지 않았습니다.
+# Run and deploy your AI Studio app
 
-초기 화면 범위는 다음과 같습니다.
+This contains everything you need to run your app locally.
 
-- 회원가입·로그인
-- 상품 목록·상세
-- 장바구니
-- 주문 생성
-- 내 주문 목록·상세
+View your app in AI Studio: https://ai.studio/apps/86a3076c-1314-403b-aade-226ac690e69e
+
+## Run Locally
+
+**Prerequisites:**  Node.js
+
+
+1. Install dependencies:
+   `npm install`
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
+   `npm run dev`

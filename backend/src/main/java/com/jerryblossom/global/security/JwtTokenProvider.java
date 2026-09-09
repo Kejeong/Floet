@@ -41,6 +41,7 @@ public class JwtTokenProvider {
                 .subject(String.valueOf(user.getId()))  // 이 토큰 주인이 누구인지 사용자 ID를 기록
                 .claim("email", user.getEmail())
                 .claim("role", user.getRole())  // 권한정보 추가
+                .claim("typ", "access") // 추가
                 .issuedAt(Date.from(now))  // 발급 시각
                 .expiration(Date.from(now.plusSeconds(accessExpiration)))  // 이 시각이 지나면 토큰 무효화
                 .signWith(secretKey)  // 서버만 아는키로 서명

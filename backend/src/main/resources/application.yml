@@ -16,11 +16,23 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        # LAZY 연관관계 컬렉션/프록시를 순회할 때 조회를 IN 쿼리로 묶어 N+1을 완화한다.
+        # 개별 목록 조회에는 fetch join 또는 DTO projection을 우선 적용한다.
+        default_batch_fetch_size: 100
+    servlet:
+      multipart:
+        # 이미지 업로드 크기 설정
+        max-file-size: 5MB
+        max-request-size: 5MB
   data:
     redis:
       host: 127.0.0.1
       port: ${REDIS_PORT:6379}
-
+  cache:
+    type: redis
+    cache-names: itemList, item
+    redis:
+      time-to-live: 10m
 server:
   port: 8080
 
@@ -40,3 +52,5 @@ logging:
 app:
   auth:
     cookie-secure: ${COOKIE_SECURE:false}
+  upload:
+    directory: ${UPLOAD_DIR:backend/uploads}
