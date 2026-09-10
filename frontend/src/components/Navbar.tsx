@@ -120,9 +120,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <ShoppingBag className="w-3.5 h-3.5" />
               <span className="hidden sm:inline font-sans">CART</span>
-              <div className="w-5 h-5 bg-[#FDFBF7] text-[#2C2723] rounded-full flex items-center justify-center text-[10px] font-mono font-semibold">
-                {cartCount}
-              </div>
+              {isLoggedIn && cartCount > 0 && (
+                <div className="w-5 h-5 bg-[#FDFBF7] text-[#2C2723] rounded-full flex items-center justify-center text-[10px] font-mono font-semibold">
+                  {cartCount}
+                </div>
+              )}
             </button>
           </div>
         </div>

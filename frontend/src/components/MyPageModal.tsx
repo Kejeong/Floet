@@ -12,6 +12,7 @@ interface MyPageModalProps {
   orderHistory: OrderCheckoutData[];
   profile: UserProfile | null;
   accessToken: string | null;
+  onLogin: () => void;
   onLogout: () => void;
   onItemsChanged: () => void;
 }
@@ -22,9 +23,11 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
   orderHistory,
   profile,
   accessToken,
+  onLogin,
   onLogout,
   onItemsChanged,
 }) => {
+  const isLoggedIn = accessToken !== null;
   const isAdmin = profile?.role === 'ADMIN';
   const [activeTab, setActiveTab] = useState<'orders' | 'products'>('orders');
   const [products, setProducts] = useState<FlowerItem[]>([]);
@@ -39,7 +42,7 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
     setIsProductsLoading(true);
     setProductsError(null);
     try {
-      const page = await getItems(undefined, 0, 100);
+      const page = await getItems(undefined, undefined, undefined, 0, 100);
       setProducts(page.content);
     } catch {
       setProductsError('상품 목록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
@@ -137,35 +140,34 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
 
         {/* Scrollable Body */}
         <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5 text-xs bg-[#FBF9F6]">
-          {/* Member Profile Overview Card */}
-          <div className="bg-white rounded-xl p-4 sm:p-5 border border-[#E6DDD2] shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-full bg-[#F5EFEB] border border-[#DFD5C7] flex items-center justify-center text-[#2C2723] text-lg font-semibold">
-                {profile?.name.charAt(0) ?? '?'}
+          {isLoggedIn && (
+            <div className="bg-white rounded-xl p-4 sm:p-5 border border-[#E6DDD2] shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-full bg-[#F5EFEB] border border-[#DFD5C7] flex items-center justify-center text-[#2C2723] text-lg font-semibold">
+                  {profile?.name.charAt(0) ?? '?'}
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-[#2C2723]">{profile?.name}</h3>
+                  <p className="text-[#2C2723]/60 text-[11px] mt-0.5 font-light">
+                    {`${profile?.phoneNumber ?? '전화번호 미등록'} · ${profile?.email ?? ''}`}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-sm font-bold text-[#2C2723]">{profile?.name ?? '로그인이 필요합니다.'}</h3>
-                <p className="text-[#2C2723]/60 text-[11px] mt-0.5 font-light">
-                  {profile
-                    ? `${profile.phoneNumber ?? '전화번호 미등록'} · ${profile.email}`
-                    : '로그인 후 회원 정보를 불러옵니다.'}
-                </p>
-              </div>
+
+              <button
+                id="mypage-inner-logout-btn"
+                onClick={() => {
+                  onLogout();
+                  onClose();
+                }}
+                className="text-[11px] text-[#2C2723]/60 hover:text-[#2C2723] border border-[#E2D8CC] hover:border-[#2C2723]/40 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+              >
+                로그아웃
+              </button>
             </div>
+          )}
 
-            <button
-              id="mypage-inner-logout-btn"
-              onClick={() => {
-                onLogout();
-                onClose();
-              }}
-              className="text-[11px] text-[#2C2723]/60 hover:text-[#2C2723] border border-[#E2D8CC] hover:border-[#2C2723]/40 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
-            >
-              로그아웃
-            </button>
-          </div>
-
-          {!isAdmin && (
+          {isLoggedIn && !isAdmin && (
             <div className="border-b border-[#E6DDD2] pb-2">
               <span className="inline-flex rounded-full bg-[#2C2723] px-3 py-1.5 text-[11px] font-medium text-[#FBF9F6]">
                 주문 내역
@@ -173,7 +175,22 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
             </div>
           )}
 
-          {activeTab === 'orders' ? (
+          {!isLoggedIn ? (
+            <div className="rounded-xl border border-[#E6DDD2] bg-white px-6 py-12 text-center text-[#2C2723]/60">
+              <Package className="mx-auto mb-2 h-8 w-8 text-[#2C2723]/30" />
+              <p className="text-xs font-medium text-[#2C2723]">로그인 후 이용하실 수 있습니다.</p>
+              <button
+                id="mypage-login-btn"
+                onClick={() => {
+                  onLogin();
+                  onClose();
+                }}
+                className="mt-4 rounded-lg bg-[#2C2723] px-5 py-2.5 text-xs font-medium text-[#FBF9F6] transition-colors hover:bg-[#1C1917]"
+              >
+                로그인
+              </button>
+            </div>
+          ) : activeTab === 'orders' ? (
           <div>
             <div className="flex items-center justify-between pb-2 border-b border-[#E6DDD2] mb-3">
               <h3 className="font-semibold text-xs text-[#2C2723]">

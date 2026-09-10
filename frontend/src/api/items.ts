@@ -17,6 +17,7 @@ export interface ItemRequest {
   category: Exclude<FlowerItem['category'], 'all'>;
   flowerMeaning: string;
   occasionTag: string;
+  itemDtl: string;
   price: number;
   stock: number;
   imageUrl?: string;
@@ -36,21 +37,33 @@ export function getItemImageUrl(imageUrl?: string): string | undefined {
 
 /**
  * 상품조회
+ * @param keyword
  * @param category
+ * @param occasionTag
  * @param page
  * @param size
  * @param signal
  */
 export async function getItems(
+  keyword?: string,
   category?: string,
+  occasionTag?: string,
   page = 0,
   size = 8,
   signal?: AbortSignal,
 ): Promise<ItemPageResponse> {
   const url = new URL('/api/items', API_URL);
 
+  if (keyword) {
+    url.searchParams.set('keyword', keyword);
+  }
+
   if (category) {
     url.searchParams.set('category', category);
+  }
+
+  if (occasionTag) {
+    url.searchParams.set('occasionTag', occasionTag);
   }
 
   url.searchParams.set('page', String(page));

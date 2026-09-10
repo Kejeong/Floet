@@ -9,6 +9,7 @@ export interface FlowerItem {
   price: number;
   flowerMeaning: string;
   occasionTag: string;
+  itemDtl: string;
   stock: number;
   imageUrl?: string;
   image?: string;

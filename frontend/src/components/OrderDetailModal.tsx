@@ -90,7 +90,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                   </span>
                 </div>
                 <p className="text-xs text-[#2C2723]/70 mb-3 font-light leading-relaxed">
-                  {flower.occasionTag}에 어울리는 상품입니다.
+                  {flower.itemDtl || `${flower.occasionTag}에 어울리는 상품입니다.`}
                 </p>
                 <div className="bg-[#FAF8F5] p-3 rounded-xl border border-[#E6DDD2] text-xs text-[#2C2723]">
                   <span className="font-medium text-[#2C2723] text-[11px] mr-1">꽃말:</span>
@@ -128,8 +128,9 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
               <span className="w-10 text-center text-xs font-semibold font-mono text-[#2C2723]">{quantity}</span>
               <button
                 type="button"
-                onClick={() => setQuantity(quantity + 1)}
-                className="w-9 h-9 flex items-center justify-center text-sm font-semibold text-[#2C2723] hover:bg-[#EFE8DE] transition-colors cursor-pointer"
+                onClick={() => setQuantity(Math.min(flower.stock, quantity + 1))}
+                disabled={quantity >= flower.stock}
+                className="w-9 h-9 flex items-center justify-center text-sm font-semibold text-[#2C2723] hover:bg-[#EFE8DE] transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-35"
                 aria-label="수량 증가"
               >
                 +
@@ -155,7 +156,8 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                 onAddToCart(handleBuildOrderItem());
                 onClose();
               }}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-white text-[#2C2723] hover:bg-[#EFE8DE] border border-[#E2D8CC] px-5 py-3 rounded-xl text-xs uppercase tracking-[0.15em] font-medium transition-all cursor-pointer shadow-xs"
+              disabled={flower.stock === 0}
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-white text-[#2C2723] hover:bg-[#EFE8DE] border border-[#E2D8CC] px-5 py-3 rounded-xl text-xs uppercase tracking-[0.15em] font-medium transition-all cursor-pointer shadow-xs disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ShoppingBag className="w-3.5 h-3.5" />
               <span>장바구니 담기</span>

@@ -118,7 +118,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         </span>
                         <button
                           onClick={() => onUpdateQuantity(item.id, 1)}
-                          className="w-6 h-6 flex items-center justify-center text-xs font-semibold hover:bg-[#EFE8DE] cursor-pointer"
+                          disabled={item.quantity >= item.flower.stock}
+                          className="w-6 h-6 flex items-center justify-center text-xs font-semibold hover:bg-[#EFE8DE] cursor-pointer disabled:cursor-not-allowed disabled:opacity-35"
                         >
                           +
                         </button>

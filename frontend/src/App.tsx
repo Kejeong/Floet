@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroBanner } from './components/HeroBanner';
 import { ProductCard } from './components/ProductCard';
@@ -12,8 +12,42 @@ import { Footer } from './components/Footer';
 import { login } from './api/auth';
 import { getMyProfile, UserProfile } from './api/users';
 import { getItems, ItemPageResponse } from './api/items';
+import { addCartItem, CartResponse, getCart, removeCartItem, updateCartItemQuantity } from './api/cart';
 import { FlowerCategory, FlowerItem, CustomOrderItem, OrderCheckoutData } from './types';
 import { Check } from 'lucide-react';
+
+const toCartItems = (cart: CartResponse, previousItems: CustomOrderItem[]): CustomOrderItem[] => (
+  cart.items.map((cartItem) => {
+    const previousItem = previousItems.find((item) => item.flower.id === cartItem.itemId);
+
+    return {
+      id: String(cartItem.itemId),
+      flower: {
+        id: cartItem.itemId,
+        name: cartItem.name,
+        category: previousItem?.flower.category ?? '',
+        price: cartItem.unitPrice,
+        flowerMeaning: previousItem?.flower.flowerMeaning ?? '',
+        occasionTag: previousItem?.flower.occasionTag ?? '',
+        itemDtl: previousItem?.flower.itemDtl ?? '',
+        // 장바구니 API가 재고를 내려주지 않으므로, 수량 변경 시 서버의 재고 검증을 기준으로 한다.
+        stock: previousItem?.flower.stock ?? Number.MAX_SAFE_INTEGER,
+        imageUrl: cartItem.imageUrl ?? undefined,
+      },
+      size: 'regular',
+      sizePriceDiff: 0,
+      packaging: 'kraft',
+      packagingPrice: 0,
+      cardType: 'none',
+      cardPrice: 0,
+      cardMessage: '',
+      deliveryDate: '',
+      deliveryTimeSlot: '',
+      quantity: cartItem.quantity,
+      totalPrice: cartItem.totalPrice,
+    };
+  })
+);
 
 export default function App() {
   const [activeCategory, setActiveCategory] = useState<FlowerCategory>('all');
@@ -49,7 +83,14 @@ export default function App() {
     setIsLoading(true);
     setLoadError(null);
 
-    getItems(category, page, 8, controller.signal)
+    getItems(
+      searchQuery.trim() || undefined,
+      category,
+      selectedTag || undefined,
+      page,
+      8,
+      controller.signal,
+    )
       .then((itemPage) => {
         setFlowers(itemPage.content);
         setPageInfo(itemPage);
@@ -68,33 +109,7 @@ export default function App() {
       });
 
     return () => controller.abort();
-  }, [activeCategory, page, reloadKey]);
-
-  // 서버에서 받은 상품에 상황 태그와 검색어를 적용한다.
-  const filteredFlowers = useMemo(() => {
-    return flowers.filter((flower) => {
-      if (activeCategory !== 'all' && flower.category !== activeCategory) {
-        return false;
-      }
-
-      if (selectedTag && flower.occasionTag !== selectedTag) {
-        return false;
-      }
-
-      if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase();
-        const inName = flower.name.toLowerCase().includes(query);
-        const inMeaning = flower.flowerMeaning.toLowerCase().includes(query);
-        const inCategory = flower.category.toLowerCase().includes(query);
-        const inOccasion = flower.occasionTag.toLowerCase().includes(query);
-        if (!inName && !inMeaning && !inCategory && !inOccasion) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-  }, [activeCategory, selectedTag, searchQuery, flowers]);
+  }, [activeCategory, selectedTag, searchQuery, page, reloadKey]);
 
   // Show quick toast notification
   const triggerToast = (msg: string) => {
@@ -104,10 +119,43 @@ export default function App() {
     }, 2800);
   };
 
+  useEffect(() => {
+    if (!accessToken) return;
+
+    let isActive = true;
+
+    void getCart(accessToken)
+      .then((cart) => {
+        if (isActive) {
+          setCartItems((previousItems) => toCartItems(cart, previousItems));
+        }
+      })
+      .catch((error: unknown) => {
+        if (isActive) {
+          triggerToast(error instanceof Error ? error.message : '장바구니를 불러오지 못했습니다.');
+        }
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [accessToken]);
+
   // Add to cart handler
-  const handleAddToCart = (item: CustomOrderItem) => {
-    setCartItems((prev) => [item, ...prev]);
-    triggerToast(`"${item.flower.name}" 상품이 장바구니에 담겼습니다.`);
+  const handleAddToCart = async (item: CustomOrderItem) => {
+    if (!accessToken) {
+      handleLogin();
+      triggerToast('장바구니는 로그인 후 이용할 수 있습니다.');
+      return;
+    }
+
+    try {
+      const cart = await addCartItem(item.flower.id, item.quantity, accessToken);
+      setCartItems((previousItems) => toCartItems(cart, previousItems));
+      triggerToast(`"${item.flower.name}" 상품이 장바구니에 담겼습니다.`);
+    } catch (error) {
+      triggerToast(error instanceof Error ? error.message : '장바구니에 상품을 담지 못했습니다.');
+    }
   };
 
   // Instant order handler (jump directly to checkout with this single item)
@@ -119,33 +167,41 @@ export default function App() {
   };
 
   // Cart item management
-  const handleUpdateQuantity = (id: string, delta: number) => {
-    setCartItems((prev) =>
-      prev
-        .map((item) => {
-          if (item.id === id) {
-            const newQty = Math.max(1, item.quantity + delta);
-            const unitPrice = item.totalPrice / item.quantity;
-            return {
-              ...item,
-              quantity: newQty,
-              totalPrice: unitPrice * newQty,
-            };
-          }
-          return item;
-        })
-        .filter((item) => item.quantity > 0)
-    );
+  const handleUpdateQuantity = async (id: string, delta: number) => {
+    const targetItem = cartItems.find((item) => item.id === id);
+    if (!targetItem) return;
+
+    const newQuantity = Math.min(targetItem.flower.stock, Math.max(1, targetItem.quantity + delta));
+
+    if (!accessToken) return;
+
+    try {
+      const cart = await updateCartItemQuantity(targetItem.flower.id, newQuantity, accessToken);
+      setCartItems((previousItems) => toCartItems(cart, previousItems));
+    } catch (error) {
+      triggerToast(error instanceof Error ? error.message : '장바구니 수량을 변경하지 못했습니다.');
+    }
   };
 
-  const handleRemoveCartItem = (id: string) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
-    triggerToast('장바구니에서 상품이 삭제되었습니다.');
+  const handleRemoveCartItem = async (id: string) => {
+    const targetItem = cartItems.find((item) => item.id === id);
+    if (!targetItem) return;
+
+    if (!accessToken) return;
+
+    try {
+      await removeCartItem(targetItem.flower.id, accessToken);
+      setCartItems((prev) => prev.filter((item) => item.id !== id));
+      triggerToast('장바구니에서 상품이 삭제되었습니다.');
+    } catch (error) {
+      triggerToast(error instanceof Error ? error.message : '장바구니 상품을 삭제하지 못했습니다.');
+    }
   };
 
   const handleLogout = () => {
     setAccessToken(null);
     setProfile(null);
+    setCartItems([]);
     triggerToast('성공적으로 로그아웃되었습니다.');
   };
 
@@ -190,13 +246,15 @@ export default function App() {
         activeCategory={activeCategory}
         onSelectCategory={(cat) => {
           setActiveCategory(cat);
-          setSelectedTag('');
           setPage(0);
         }}
         cartCount={cartItems.reduce((acc, item) => acc + item.quantity, 0)}
         onOpenCart={() => setIsCartOpen(true)}
         searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
+        onSearchChange={(keyword) => {
+          setSearchQuery(keyword);
+          setPage(0);
+        }}
         isLoggedIn={accessToken !== null}
         userName={profile?.name}
         onLogout={handleLogout}
@@ -209,7 +267,6 @@ export default function App() {
         selectedTag={selectedTag}
         onTagClick={(tag) => {
           setSelectedTag(tag);
-          setActiveCategory('all');
           setPage(0);
         }}
       />
@@ -247,7 +304,7 @@ export default function App() {
               다시 시도
             </button>
           </div>
-        ) : filteredFlowers.length === 0 ? (
+        ) : flowers.length === 0 ? (
           <div className="bg-[#FAF8F5] rounded-xl border border-[#E6DDD2] p-14 text-center text-[#2C2723]/70">
             <p className="text-sm font-medium text-[#2C2723] mb-2">
               조건에 부합하는 꽃 상품을 찾지 못했습니다
@@ -269,7 +326,7 @@ export default function App() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredFlowers.map((flower) => (
+            {flowers.map((flower) => (
               <ProductCard
                 key={flower.id}
                 flower={flower}
@@ -380,6 +437,7 @@ export default function App() {
         orderHistory={orderHistory}
         profile={profile}
         accessToken={accessToken}
+        onLogin={handleLogin}
         onLogout={handleLogout}
         onItemsChanged={() => setReloadKey((key) => key + 1)}
       />

@@ -17,6 +17,7 @@ const emptyItem: ItemRequest = {
   category: 'BOUQUET',
   flowerMeaning: '',
   occasionTag: '',
+  itemDtl: '',
   price: 0,
   stock: 0,
   imageUrl: undefined,
@@ -31,6 +32,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   onSubmit,
 }) => {
   const [form, setForm] = useState<ItemRequest>(emptyItem);
+  const [stockInput, setStockInput] = useState('');
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
@@ -42,10 +44,12 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       category: item.category as ItemRequest['category'],
       flowerMeaning: item.flowerMeaning,
       occasionTag: item.occasionTag,
+      itemDtl: item.itemDtl,
       price: item.price,
       stock: item.stock,
       imageUrl: item.imageUrl,
     } : emptyItem);
+    setStockInput(item ? String(item.stock) : '');
     setSelectedImage(null);
     setImagePreviewUrl(getItemImageUrl(item?.imageUrl ?? item?.image) ?? null);
     setImageError(null);
@@ -128,6 +132,9 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
           <label className="sm:col-span-2 text-[11px] font-medium text-[#2C2723]">꽃말
             <input required value={form.flowerMeaning} onChange={(e) => updateField('flowerMeaning', e.target.value)} className="mt-1.5 w-full rounded-lg border border-[#E2D8CC] bg-white px-3 py-2 text-xs outline-none focus:border-[#2C2723]" />
           </label>
+          <label className="sm:col-span-2 text-[11px] font-medium text-[#2C2723]">상품 상세 설명
+            <textarea required rows={4} value={form.itemDtl} onChange={(e) => updateField('itemDtl', e.target.value)} className="mt-1.5 w-full resize-y rounded-lg border border-[#E2D8CC] bg-white px-3 py-2 text-xs outline-none focus:border-[#2C2723]" />
+          </label>
           <div className="sm:col-span-2">
             <span className="text-[11px] font-medium text-[#2C2723]">상품 이미지</span>
             <div className="mt-1.5 flex flex-col gap-3 rounded-xl border border-dashed border-[#D8CCBD] bg-white p-3 sm:flex-row sm:items-center">
@@ -159,7 +166,22 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
             <input required min="1" type="number" value={form.price || ''} onChange={(e) => updateField('price', Number(e.target.value))} className="mt-1.5 w-full rounded-lg border border-[#E2D8CC] bg-white px-3 py-2 text-xs outline-none focus:border-[#2C2723]" />
           </label>
           <label className="text-[11px] font-medium text-[#2C2723]">재고
-            <input required min="0" type="number" value={form.stock} onChange={(e) => updateField('stock', Number(e.target.value))} className="mt-1.5 w-full rounded-lg border border-[#E2D8CC] bg-white px-3 py-2 text-xs outline-none focus:border-[#2C2723]" />
+            <input
+              required
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={stockInput}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (!/^\d*$/.test(value)) return;
+
+                setStockInput(value);
+                updateField('stock', value === '' ? 0 : Number(value));
+              }}
+              placeholder="재고 수량 입력"
+              className="mt-1.5 w-full rounded-lg border border-[#E2D8CC] bg-white px-3 py-2 text-xs outline-none focus:border-[#2C2723]"
+            />
           </label>
           {error && <p className="sm:col-span-2 rounded-lg bg-red-50 px-3 py-2 text-[11px] text-red-700">{error}</p>}
         </div>
