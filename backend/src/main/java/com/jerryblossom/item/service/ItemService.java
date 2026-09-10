@@ -1,6 +1,7 @@
 package com.jerryblossom.item.service;
 
 import com.jerryblossom.item.domain.Item;
+import com.jerryblossom.item.domain.ItemCategory;
 import com.jerryblossom.item.dto.ItemCreateRequest;
 import com.jerryblossom.item.dto.ItemResponse;
 import com.jerryblossom.item.dto.ItemUpdateRequest;
@@ -33,6 +34,7 @@ public class ItemService {
                 .category(request.getCategory())
                 .flowerMeaning(request.getFlowerMeaning())
                 .occasionTag(request.getOccasionTag())
+                .itemDtl(request.getItemDtl())
                 .price(request.getPrice())
                 .stock(request.getStock())
                 .imageUrl(request.getImageUrl())
@@ -44,19 +46,14 @@ public class ItemService {
     /**
      * 상품 목록조회
      */
-        @Cacheable(
-                cacheNames = "itemList",
-                key = "#category + ':' + #pageable.pageNumber + ':' + #pageable.pageSize"
-        )
-        public Page<ItemResponse> findAll(String category, Pageable pageable){
-            // Redis에 데이터가 없을 때만 DB조회
-        Page<Item> items;
+    @Cacheable(
+            cacheNames = "itemList",
+            key = "#keyword + ':' + #category + ':' + #occasionTag + ':' + #pageable.pageNumber + ':' + #pageable.pageSize"
+    )
+    public Page<ItemResponse> findAll(String keyword, ItemCategory category, String occasionTag, Pageable pageable) {
+        String normalizedKeyword = keyword == null ? "" : keyword.trim();
 
-        if(category == null || category.isBlank()) {
-            items = itemRepository.findAll(pageable);
-        } else {
-            items = itemRepository.findAllByCategory(category, pageable);
-        }
+        Page<Item> items = itemRepository.findAllByFilters(normalizedKeyword, category, occasionTag, pageable);
 
         return items.map(ItemResponse::new);
     }
@@ -85,9 +82,11 @@ public class ItemService {
                 request.getCategory(),
                 request.getFlowerMeaning(),
                 request.getOccasionTag(),
+                request.getItemDtl(),
                 request.getPrice(),
                 request.getStock()
         );
+        // 이미지 변경
         item.changeImageUrl(request.getImageUrl());
 
         // JPA 변경 감지: save()를 다시 호출하지 않아도 트랜잭션 종료 시 UPDATE 됩니다.

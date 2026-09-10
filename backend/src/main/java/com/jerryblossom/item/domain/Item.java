@@ -18,14 +18,18 @@ public class Item {
     @Column(nullable = false, length = 100)
     private String name;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
-    private String category;
+    private ItemCategory category;
 
     @Column(nullable = false)
     private String flowerMeaning;
 
     @Column(nullable = false, length = 50)
     private String occasionTag;
+
+    @Column
+    private String itemDtl;
 
     @Column(nullable = false)
     private int price;
@@ -37,11 +41,12 @@ public class Item {
     private String imageUrl;
 
     @Builder
-    public Item(String name, String category, String flowerMeaning, String occasionTag, int price, int stock, String imageUrl) {
+    public Item(String name, ItemCategory category, String flowerMeaning, String occasionTag, String itemDtl, int price, int stock, String imageUrl) {
         this.name = name;
         this.category = category;
         this.flowerMeaning = flowerMeaning;
         this.occasionTag = occasionTag;
+        this.itemDtl = itemDtl;
         this.price = price;
         this.stock = stock;
         this.imageUrl = imageUrl;
@@ -50,11 +55,12 @@ public class Item {
     /**
      * 상품 수정
      */
-    public void update(String name, String category, String flowerMeaning, String occasionTag, int price, int stock) {
+    public void update(String name, ItemCategory category, String flowerMeaning, String occasionTag, String itemDtl, int price, int stock) {
         this.name = name;
         this.category = category;
         this.flowerMeaning = flowerMeaning;
         this.occasionTag = occasionTag;
+        this.itemDtl = itemDtl;
         this.price = price;
         this.stock = stock;
     }

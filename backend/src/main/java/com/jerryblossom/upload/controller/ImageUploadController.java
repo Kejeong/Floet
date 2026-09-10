@@ -2,6 +2,8 @@ package com.jerryblossom.upload.controller;
 
 import com.jerryblossom.upload.dto.ImageUploadResponse;
 import com.jerryblossom.upload.service.ImageUploadService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,18 +17,14 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/uploads")
+@Tag(name="이미지 업로드")
 public class ImageUploadController {
-
     private final ImageUploadService imageUploadService;
 
-    @PostMapping(
-            value = "/items",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
+    @PostMapping(value = "/items", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public ImageUploadResponse uploadItemImage(
-            @RequestParam("image") MultipartFile image
-    ) {
+    @Operation(summary = "이미지 업로드")
+    public ImageUploadResponse uploadItemImage(@RequestParam("image") MultipartFile image) {
         return imageUploadService.uploadItemImage(image);
     }
 }

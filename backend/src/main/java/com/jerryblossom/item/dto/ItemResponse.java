@@ -1,6 +1,7 @@
 package com.jerryblossom.item.dto;
 
 import com.jerryblossom.item.domain.Item;
+import com.jerryblossom.item.domain.ItemCategory;
 import lombok.Getter;
 
 import java.io.Serial;
@@ -13,9 +14,10 @@ public class ItemResponse implements Serializable {
 
     private final Long id;
     private final String name;
-    private final String category;
+    private final ItemCategory category;
     private final String flowerMeaning;
     private final String occasionTag;
+    private final String itemDtl;
     private final int price;
     private final int stock;
     private final String imageUrl;
@@ -27,6 +29,7 @@ public class ItemResponse implements Serializable {
         this.category = item.getCategory();
         this.flowerMeaning = item.getFlowerMeaning();
         this.occasionTag = item.getOccasionTag();
+        this.itemDtl = item.getItemDtl();
         this.price = item.getPrice();
         this.stock = item.getStock();
         this.imageUrl = item.getImageUrl();

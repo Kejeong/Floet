@@ -30,7 +30,7 @@ spring:
       port: ${REDIS_PORT:6379}
   cache:
     type: redis
-    cache-names: itemList, item
+    cache-names: itemList, item, cart
     redis:
       time-to-live: 10m
 server:

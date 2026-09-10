@@ -3,6 +3,7 @@ package com.jerryblossom.item.controller;
 import com.jerryblossom.item.dto.ItemCreateRequest;
 import com.jerryblossom.item.dto.ItemResponse;
 import com.jerryblossom.item.dto.ItemUpdateRequest;
+import com.jerryblossom.item.domain.ItemCategory;
 import com.jerryblossom.item.service.ItemService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,8 +15,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,9 +32,11 @@ public class ItemController {
 
     @GetMapping
     @Operation(summary = "상품목록조회")
-    public Page<ItemResponse> findAll(@RequestParam(required = false) String category,
+    public Page<ItemResponse> findAll(@RequestParam(required = false) String keyword,
+                                      @RequestParam(required = false) ItemCategory category,
+                                      @RequestParam(required = false) String occasionTag,
                                       @PageableDefault(size = 8, sort= "id", direction = Sort.Direction.DESC) Pageable pageable){
-        return itemService.findAll(category, pageable);
+        return itemService.findAll(keyword, category, occasionTag, pageable);
     }
 
     @GetMapping("/{id}")
